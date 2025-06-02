@@ -89,7 +89,7 @@ export default function SingleWorkingGroup({
         <div className="mt-8">
           <Title titleText="Chairs" />
           <div className="mt-4 flex flex-wrap gap-6">
-            {leads.map((person, index) => (
+            {leads.sort((a, b) => a.name.localeCompare(b.name)).map((person, index) => (
               <Person key={index} {...person} roles={person.role ? [person.role] : []} />
             ))}
           </div>
