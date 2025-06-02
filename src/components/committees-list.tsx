@@ -84,9 +84,6 @@ export default function CommitteesList({ committees }: CommitteesListProps) {
     <div>
       <div className="flex flex-col gap-1">
         <h1 className="text-lg font-semibold text-primary-dark">Committees</h1>
-        <p className="text-sm text-gray-darker font-medium">
-          Committees oversee specific areas of governance and coordination within the Green Software Foundation.
-        </p>
       </div>
       <div className="flex flex-col gap-2 mt-2">
         <SearchableList

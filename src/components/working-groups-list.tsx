@@ -24,9 +24,6 @@ export default function WorkingGroupsList({ workingGroups }) {
     <div>
       <div className="flex flex-col gap-1">
         <h1 className="text-lg font-semibold text-primary-dark">Working Groups</h1>
-        <p className="text-sm text-gray-darker font-medium">
-          Working groups are focused on specific areas of the Green Software Foundation's mission.
-        </p>
       </div>
       <div className="flex flex-col gap-2 mt-2">
         <SearchableList

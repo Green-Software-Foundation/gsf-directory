@@ -46,10 +46,6 @@ export default function ProjectsList({ projects }) {
     <div>
       <div className="flex flex-col gap-1">
         <h1 className="text-lg font-semibold text-primary-dark">Projects</h1>
-        <p className="text-sm text-gray-darker font-medium">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac
-          sagittis massa, id gravida leo.
-        </p>
       </div>
       <div className="flex flex-col gap-2 mt-2">
         <SearchableList

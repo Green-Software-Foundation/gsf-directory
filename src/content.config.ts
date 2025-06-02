@@ -3,8 +3,6 @@ import { Client } from "@notionhq/client";
 import fs from "fs/promises";
 import path from "path";
 
-console.log("NOTION_TOKEN", import.meta.env.NOTION_TOKEN);
-console.log("NOTION_TOKEN", process.env.NOTION_TOKEN);
 // Define the schema for your Notion data
 const projectsSchema = z.object({
   id: z.string(),
