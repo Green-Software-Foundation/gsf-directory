@@ -15,17 +15,17 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-      NOTION_PROJECTS_DATABASE_ID: ${{ secrets.NOTION_PROJECTS_DATABASE_ID }}
-      NOTION_MEMBERS_DATABASE_ID: ${{ secrets.NOTION_MEMBERS_DATABASE_ID }}
-      NOTION_SUBSCRIPTIONS_DATABASE_ID: ${{ secrets.NOTION_SUBSCRIPTIONS_DATABASE_ID }}
-      NOTION_VOLUNTEERS_DATABASE_ID: ${{ secrets.NOTION_VOLUNTEERS_DATABASE_ID }}
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
       - name: Install, build, and upload your site
         uses: withastro/action@v3
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_PROJECTS_DATABASE_ID: ${{ secrets.NOTION_PROJECTS_DATABASE_ID }}
+          NOTION_MEMBERS_DATABASE_ID: ${{ secrets.NOTION_MEMBERS_DATABASE_ID }}
+          NOTION_SUBSCRIPTIONS_DATABASE_ID: ${{ secrets.NOTION_SUBSCRIPTIONS_DATABASE_ID }}
+          NOTION_VOLUNTEERS_DATABASE_ID: ${{ secrets.NOTION_VOLUNTEERS_DATABASE_ID }}
 
   deploy:
     needs: build
