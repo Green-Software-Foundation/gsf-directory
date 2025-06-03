@@ -1,6 +1,41 @@
 import { notion, saveIconToFolder, createOrgLeadsDict } from "./notion";
 import { type NotionData, type NotionPage, type NotionSubscription } from "../types/notion";
-import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { PageObjectResponse, QueryDatabaseResponse } from "@notionhq/client/build/src/api-endpoints";
+
+/**
+ * Helper function to fetch all pages from a Notion database with pagination support
+ */
+async function fetchAllPagesFromDatabase(params: Parameters<typeof notion.databases.query>[0]): Promise<QueryDatabaseResponse> {
+  let allResults: PageObjectResponse[] = [];
+  let hasMore = true;
+  let startCursor: string | undefined = undefined;
+  
+  while (hasMore) {
+    const response = await notion.databases.query({
+      ...params,
+      start_cursor: startCursor,
+    });
+    
+    // Add the current page of results
+    const pageResults = response.results.filter((page): page is PageObjectResponse => 
+      'properties' in page
+    );
+    allResults = [...allResults, ...pageResults];
+    
+    // Check if there are more pages to fetch
+    hasMore = response.has_more;
+    startCursor = response.next_cursor || undefined;
+  }
+  
+  return {
+    results: allResults,
+    has_more: false,
+    next_cursor: null,
+    object: 'list',
+    type: 'page_or_database',
+    page_or_database: {}
+  };
+}
 
 /**
  * Fetches all required data from Notion
@@ -8,7 +43,7 @@ import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoint
 export async function fetchNotionData(): Promise<Omit<NotionData, 'orgLeadsDict'>> {
   try {
     // Fetch projects
-    const projectsResponse = await notion.databases.query({
+    const projectsResponse = await fetchAllPagesFromDatabase({
       database_id: import.meta.env.NOTION_PROJECTS_DATABASE_ID,
       filter: {
         and: [
@@ -46,7 +81,7 @@ export async function fetchNotionData(): Promise<Omit<NotionData, 'orgLeadsDict'
     });
 
     // Fetch subscriptions
-    const subscriptionResponse = await notion.databases.query({
+    const subscriptionResponse = await fetchAllPagesFromDatabase({
       database_id: import.meta.env.NOTION_SUBSCRIPTIONS_DATABASE_ID,
       filter: {
         and: [
@@ -73,7 +108,7 @@ export async function fetchNotionData(): Promise<Omit<NotionData, 'orgLeadsDict'
     });
 
     // Fetch members
-    const membersResponse = await notion.databases.query({
+    const membersResponse = await fetchAllPagesFromDatabase({
       database_id: import.meta.env.NOTION_MEMBERS_DATABASE_ID,
       filter: {
         and: [
@@ -88,7 +123,7 @@ export async function fetchNotionData(): Promise<Omit<NotionData, 'orgLeadsDict'
     });
 
     // Fetch working groups
-    const workingGroupsResponse = await notion.databases.query({
+    const workingGroupsResponse = await fetchAllPagesFromDatabase({
       database_id: import.meta.env.NOTION_PROJECTS_DATABASE_ID,
       filter: {
         and: [
@@ -109,7 +144,7 @@ export async function fetchNotionData(): Promise<Omit<NotionData, 'orgLeadsDict'
     });
 
     // Fetch committees
-    const committeesResponse = await notion.databases.query({
+    const committeesResponse = await fetchAllPagesFromDatabase({
       database_id: import.meta.env.NOTION_PROJECTS_DATABASE_ID,
       filter: {
         and: [
