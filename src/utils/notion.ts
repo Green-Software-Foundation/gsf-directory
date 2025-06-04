@@ -108,8 +108,23 @@ export function createOrgLeadsDict(subscriptionResponse: { results: NotionSubscr
  */
 export async function renderNotionBlocks(blocks: any[]): Promise<string> {
   let html = "";
+  let currentListType: string | null = null;
+  let listItems = "";
+
+  const closeList = () => {
+    if (currentListType) {
+      html += currentListType === "bulleted_list_item" ? `<ul>${listItems}</ul>` : `<ol>${listItems}</ol>`;
+      listItems = "";
+      currentListType = null;
+    }
+  };
 
   for (const block of blocks) {
+    // If we encounter a non-list item and we have an open list, close it
+    if (block.type !== "bulleted_list_item" && block.type !== "numbered_list_item" && currentListType) {
+      closeList();
+    }
+
     switch (block.type) {
       case "paragraph":
         html += `<p>${await renderRichText(block.paragraph.rich_text)}</p>`;
@@ -124,10 +139,30 @@ export async function renderNotionBlocks(blocks: any[]): Promise<string> {
         html += `<h3>${await renderRichText(block.heading_3.rich_text)}</h3>`;
         break;
       case "bulleted_list_item":
-        html += `<li>${await renderRichText(block.bulleted_list_item.rich_text)}</li>`;
+        // If we're switching from numbered to bulleted, close the numbered list first
+        if (currentListType === "numbered_list_item") {
+          closeList();
+        }
+        
+        // Start a new bulleted list if needed
+        if (!currentListType) {
+          currentListType = "bulleted_list_item";
+        }
+        
+        listItems += `<li>${await renderRichText(block.bulleted_list_item.rich_text)}</li>`;
         break;
       case "numbered_list_item":
-        html += `<li>${await renderRichText(block.numbered_list_item.rich_text)}</li>`;
+        // If we're switching from bulleted to numbered, close the bulleted list first
+        if (currentListType === "bulleted_list_item") {
+          closeList();
+        }
+        
+        // Start a new numbered list if needed
+        if (!currentListType) {
+          currentListType = "numbered_list_item";
+        }
+        
+        listItems += `<li>${await renderRichText(block.numbered_list_item.rich_text)}</li>`;
         break;
       case "code":
         html += `<pre><code class="language-${block.code.language}">${block.code.rich_text[0].plain_text}</code></pre>`;
@@ -136,10 +171,91 @@ export async function renderNotionBlocks(blocks: any[]): Promise<string> {
         const imageUrl = block.image.type === "external" ? block.image.external.url : block.image.file.url;
         html += `<img src="${imageUrl}" alt="${block.image.caption?.[0]?.plain_text || ""}" />`;
         break;
+      case "divider":
+        html += `<hr />`;
+        break;
+      case "quote":
+        html += `<blockquote>${await renderRichText(block.quote.rich_text)}</blockquote>`;
+        break;
+      case "callout":
+        html += `<div class="callout">
+          ${block.callout.icon?.emoji ? `<div class="callout-icon">${block.callout.icon.emoji}</div>` : ''}
+          <div class="callout-content">${await renderRichText(block.callout.rich_text)}</div>
+        </div>`;
+        break;
+      case "toggle":
+        html += `<details>
+          <summary>${await renderRichText(block.toggle.rich_text)}</summary>
+          ${block.has_children ? await fetchAndRenderChildren(block.id) : ''}
+        </details>`;
+        break;
+      case "to_do":
+        const checked = block.to_do.checked ? 'checked' : '';
+        html += `<div class="to-do-item">
+          <input type="checkbox" ${checked} disabled />
+          <span>${await renderRichText(block.to_do.rich_text)}</span>
+        </div>`;
+        break;
+      case "table":
+        if (block.has_children) {
+          html += `<table><tbody>${await fetchAndRenderChildren(block.id)}</tbody></table>`;
+        }
+        break;
+      case "table_row":
+        html += `<tr>`;
+        for (const cell of block.table_row.cells) {
+          html += `<td>${await renderRichText(cell)}</td>`;
+        }
+        html += `</tr>`;
+        break;
+      case "bookmark":
+        html += `<a href="${block.bookmark.url}" class="bookmark" target="_blank" rel="noopener noreferrer">
+          ${block.bookmark.caption ? await renderRichText(block.bookmark.caption) : block.bookmark.url}
+        </a>`;
+        break;
+      case "embed":
+        html += `<div class="embed-container">
+          <iframe src="${block.embed.url}" frameborder="0" allowfullscreen></iframe>
+        </div>`;
+        break;
+      case "video":
+        const videoUrl = block.video.type === "external" ? block.video.external.url : block.video.file.url;
+        html += `<div class="video-container">
+          <video controls src="${videoUrl}">${block.video.caption ? await renderRichText(block.video.caption) : ''}</video>
+        </div>`;
+        break;
+      case "file":
+        const fileUrl = block.file.type === "external" ? block.file.external.url : block.file.file.url;
+        const fileName = block.file.caption?.[0]?.plain_text || "Download file";
+        html += `<a href="${fileUrl}" class="file-link" target="_blank" rel="noopener noreferrer">${fileName}</a>`;
+        break;
+      case "table_of_contents":
+        html += `<div class="table-of-contents">Table of Contents</div>`;
+        break;
     }
   }
 
+  // Close any open list at the end of processing
+  if (currentListType) {
+    closeList();
+  }
+
   return html;
+}
+
+/**
+ * Helper function to fetch and render child blocks
+ */
+async function fetchAndRenderChildren(blockId: string): Promise<string> {
+  try {
+    const response = await notion.blocks.children.list({
+      block_id: blockId,
+    });
+    return await renderNotionBlocks(response.results);
+  } catch (error) {
+    console.error(`Error fetching children for block ${blockId}:`, error);
+    return "";
+  }
 }
 
 /**

@@ -1,2 +1,1 @@
-TODO:
-- [ ] Configure assets save properly
+# GSF Directory

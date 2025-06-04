@@ -69,7 +69,7 @@ export default {
             '--tw-prose-bold': 'var(--primary-darker)',
             '--tw-prose-counters': 'var(--primary)',
             '--tw-prose-bullets': 'var(--primary)',
-            '--tw-prose-hr': 'var(--gray)',
+            '--tw-prose-hr': 'var(--gray-dark)',
             '--tw-prose-quotes': 'var(--primary-darker)',
             '--tw-prose-quote-borders': 'var(--primary)',
             '--tw-prose-captions': 'var(--gray-dark)',
