@@ -86,7 +86,7 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Newsletter className="w-full" />
+            {/* <Newsletter className="w-full" /> */}
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
