@@ -20,6 +20,6 @@ export async function getStaticPaths() {
 const { entry: memberData } = Astro.props;
 ---
 
-<Layout>
+<Layout pageName={memberData.data.name}>
   <SingleMember member={memberData.data as any}  client:load />
 </Layout>

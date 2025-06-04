@@ -6,6 +6,6 @@ import WorkingGroupsList from "@/components/working-groups-list";
 const workingGroups = await getCollection("workingGroups");
 ---
 
-<Layout >
+<Layout pageName="Working Groups">
   <WorkingGroupsList workingGroups={workingGroups} client:load />
-</Layout> 
+</Layout>

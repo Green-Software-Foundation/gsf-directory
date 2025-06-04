@@ -12,6 +12,6 @@ const membersByLevel = members.reduce((acc, member) => {
 }, {} as Record<string, typeof members>);
 ---
 
-<Layout>
+<Layout pageName="Members">
   <MembersList client:load membersByLevel={membersByLevel} />
 </Layout>

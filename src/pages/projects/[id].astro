@@ -18,7 +18,7 @@ export async function getStaticPaths() {
 const { entry: project  } = Astro.props;
 ---
 
-<Layout >
+<Layout pageName={project.data.title}>
   <SingleProject 
     project={project.data as any} 
     client:load 

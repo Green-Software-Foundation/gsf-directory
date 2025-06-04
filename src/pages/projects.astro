@@ -5,6 +5,6 @@ import { getCollection } from "astro:content";
 const projects = await getCollection("projects");
 ---
 
-<Layout>
+<Layout pageName="Projects">
   <AppProjects client:load projects={projects}/>
 </Layout>

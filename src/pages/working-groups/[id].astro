@@ -20,9 +20,9 @@ export async function getStaticPaths() {
 const { workingGroup } = Astro.props;
 ---
 
-<Layout >
+<Layout pageName={workingGroup.title}>
   <SingleWorkingGroup 
     workingGroup={workingGroup as any} 
     client:load 
   />
-</Layout> 
+</Layout>
