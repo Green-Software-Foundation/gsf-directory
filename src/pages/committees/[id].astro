@@ -41,7 +41,7 @@ export async function getStaticPaths() {
 
 const { committee, sidebarData } = Astro.props;
 ---
-<Layout pageName={committee.title} sidebarData={sidebarData}>
+<Layout pageName={committee.title} description={committee.description} sidebarData={sidebarData}>
   <SingleCommittee 
     committee={committee} 
     client:load 
